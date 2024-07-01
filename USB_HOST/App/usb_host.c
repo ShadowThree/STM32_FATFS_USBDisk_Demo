@@ -26,6 +26,7 @@
 
 /* USER CODE BEGIN Includes */
 #include "fatfs.h"
+#include "dbger.h"
 /* USER CODE END Includes */
 
 /* USER CODE BEGIN PV */

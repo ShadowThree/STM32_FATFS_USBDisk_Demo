@@ -135,7 +135,6 @@
 #endif
 
 #if (USBH_DEBUG_LEVEL > 1U)
-
 #define  USBH_ErrLog(...) do { \
                             LOG_DBG("ERROR: "); \
                             LOG_DBG(__VA_ARGS__); \
