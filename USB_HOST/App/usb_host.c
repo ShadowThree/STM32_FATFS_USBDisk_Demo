@@ -105,25 +105,36 @@ static void USBH_UserProcess  (USBH_HandleTypeDef *phost, uint8_t id)
   /* USER CODE BEGIN CALL_BACK_1 */
   switch(id)
   {
-  case HOST_USER_SELECT_CONFIGURATION:
-  break;
+		case HOST_USER_SELECT_CONFIGURATION:
+			LOG_DBG("HOST_USER_SELECT_CONFIGURATION\n");
+			break;
+		
+		case HOST_USER_CLASS_ACTIVE:
+			LOG_DBG("HOST_USER_CLASS_ACTIVE\n");
+			Appli_state = APPLICATION_START;
+			break;
+		
+		case HOST_USER_CLASS_SELECTED:
+			LOG_DBG("HOST_USER_CLASS_SELECTED\n");
+			break;
+		
+		case HOST_USER_CONNECTION:
+			LOG_DBG("HOST_USER_CONNECTION\n");
+			break;	
+		
+		case HOST_USER_DISCONNECTION:
+			LOG_DBG("HOST_USER_DISCONNECTION\n");
+			Appli_state = APPLICATION_IDLE;
+			f_mount(NULL, (TCHAR const*)"", 0);  
+			break;
 
-  case HOST_USER_DISCONNECTION:
-		Appli_state = APPLICATION_IDLE;
-    f_mount(NULL, (TCHAR const*)"", 0);  
-  break;
+		case HOST_USER_UNRECOVERED_ERROR:
+			LOG_DBG("HOST_USER_UNRECOVERED_ERROR\n");
+			break; 
 
-  case HOST_USER_CLASS_ACTIVE:
-  //Appli_state = APPLICATION_READY;
-	Appli_state = APPLICATION_START;
-  break;
-
-  case HOST_USER_CONNECTION:
-  //Appli_state = APPLICATION_START;
-  break;
-
-  default:
-  break;
+		default:
+			LOG_DBG("USBH_UserProcess default\n");
+			break;
   }
   /* USER CODE END CALL_BACK_1 */
 }

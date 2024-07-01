@@ -105,7 +105,8 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-		
+		static uint32_t last_tick = 0;
+		uint32_t now = HAL_GetTick();
     /* USER CODE END WHILE */
     MX_USB_HOST_Process();
 
@@ -113,16 +114,28 @@ int main(void)
 		switch(Appli_state)
     {
       case APPLICATION_START:
+				LOG_DBG("APPLICATION_START\n");
         MSC_Application();
         Appli_state = APPLICATION_IDLE;
         break;
         
       case APPLICATION_IDLE:
-				/* if(HAL_GetTick() % 3000 < 10) {
+				//LOG_DBG("APPLICATION_IDLE\n");
+				if(now - last_tick > 3000) {
+					last_tick = now;
 					LOG_DBG("set Appli_state to START\n");
-					Appli_state = APPLICATION_START;
-				} */
+					MSC_Application();
+				}
 				break;
+			
+			case APPLICATION_READY:
+				LOG_DBG("APPLICATION_READY\n");
+				break;
+			
+			case APPLICATION_DISCONNECT:
+				LOG_DBG("APPLICATION_DISCONNECT\n");
+				break;
+			
       default:
         break;      
     }
@@ -196,6 +209,7 @@ static void MSC_Application(void)
 		res = f_open(&MyFile, "STM32.TXT", FA_CREATE_ALWAYS | FA_WRITE);
     if(res != FR_OK) 
     {
+			f_mount(0, (TCHAR const*)USBHPath, 0);
       LOG_ERR("f_open for write err[%d]\n", res);
       Error_Handler();
     }
@@ -207,6 +221,7 @@ static void MSC_Application(void)
       
       if((byteswritten == 0) || (res != FR_OK))
       {
+				f_mount(0, (TCHAR const*)USBHPath, 0);
         LOG_ERR("f_write err\n");
         Error_Handler();
       }
@@ -219,6 +234,7 @@ static void MSC_Application(void)
         /* Open the text file object with read access */
         if(f_open(&MyFile, "STM32.TXT", FA_READ) != FR_OK)
         {
+					f_mount(0, (TCHAR const*)USBHPath, 0);
           LOG_ERR("f_open for read err\n");
           Error_Handler();
         }
@@ -230,6 +246,7 @@ static void MSC_Application(void)
           
           if((bytesread == 0) || (res != FR_OK))
           {
+						f_mount(0, (TCHAR const*)USBHPath, 0);
             LOG_ERR("f_read err\n");
             Error_Handler();
           }
@@ -241,7 +258,8 @@ static void MSC_Application(void)
             
             /* Compare read data with the expected data */
             if((bytesread != byteswritten))
-            {                
+            {
+							f_mount(0, (TCHAR const*)USBHPath, 0);
               LOG_ERR("f_close err\n");
               Error_Handler();
             }
@@ -254,10 +272,11 @@ static void MSC_Application(void)
         }
       }
     }
+		f_mount(0, (TCHAR const*)USBHPath, 0);
   }
   
   /* Unlink the USB disk I/O driver */
-  FATFS_UnLinkDriver(USBHPath);
+  //FATFS_UnLinkDriver(USBHPath);
 }
 /* USER CODE END 4 */
 
